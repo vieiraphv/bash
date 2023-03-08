@@ -24,8 +24,8 @@ function logresult()	{
 #========================================#
 #               VARIABLES                #
 #========================================#
-LOCAL_ADMIN_FULLNAME="IT Support TEST"             # The local admin user's full name
-LOCAL_ADMIN_SHORTNAME="it.support.test"            # The local admin user's shortname
+LOCAL_ADMIN_FULLNAME="User TEST"             # The local admin user's full name
+LOCAL_ADMIN_SHORTNAME="user.test"            # The local admin user's shortname
 LOCAL_ADMIN_PASSWORD="$randpassword"               # Local admin user's password
 randpassword=$( /usr/bin/openssl rand -base64 12 ) # Generates random password
 fpdirectory="/private/var/.fp"                     # Hidden Directory
