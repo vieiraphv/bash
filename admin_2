@@ -1,0 +1,77 @@
+#!/bin/bash
+
+
+#========================================#
+#              LOG FUNCTION              #
+#========================================#
+function logresult()	{
+    if [ $? = "0" ] ; then
+        echo "$1"
+    else
+        echo "$2"
+        exit 1
+    fi
+}
+
+#========================================#
+#        PREVIOUS USER VALIDATION        #
+#========================================#
+folder_path="/Users/.support.trustly"
+pwd_folder="/Library/.aup"
+
+# Checking if the admin user's folder exists
+if [ -d "$folder_path" ]; then
+    # Deleting the folder
+    cd $folder_path
+    rm -rf *
+    cd /Users
+    sudo rm -rf ./.support.trustly
+    logresult "|SUCCESS| Previous IT Support Admin User deleted." "Nothing deleted." 
+else
+    echo "|SUCCESS| This MacBook didn't have IT Support Admin User previously. Proceeding with creation"
+fi
+
+# Checking if /.aup folder exists inside Library folder
+if [ -d "$pwd_folder" ]; then
+    # Deleting the folder
+    sudo rm -rf "$pwd_folder"
+    logresult "|SUCCESS| Password folder deleted." "Password folder NOT deleted."
+else
+    echo "|SUCCESS| /.aup folder ok. Proceeding with creation"
+fi
+
+#========================================#
+#               VARIABLES                #
+#========================================#
+prefix="!P0T4t0"
+squeeze="tr -s ([A-Z]).*\1"
+squeeze2="tr -s ([a-z]).*\1"
+randpassword=$(openssl rand -base64 4 | tr -dc "[:alnum:]_." | tr -sc '\0' | tr -d '/=+iIlL'| $squeeze | $squeeze2 )
+pwd="$prefix$randpassword"
+logresult "|SUCCESS| Password $randpassword generated sucessfully" "Failed generating password"
+
+# Getting the current logged in user
+userName=$(scutil <<< "show State:/Users/ConsoleUser" | awk '/Name :/ && ! /loginwindow/ { print $3 }')
+echo $userName " is logged"
+
+
+cd /Library
+mkdir .aup
+
+#========================================#
+#           SET RANDOM PASSWORD          # 
+#========================================#
+sudo /usr/bin/dscl . -passwd /Users/.support.trustly $pwd
+logresult "|SUCCESS| Random password set sucessfully" "Failed setting random password"
+
+#========================================#
+#      WRITE RANDOM PASSWORD TO FILE     # 
+#========================================#
+/usr/bin/touch  /Library/.aup/$randpassword
+logresult "|SUCCESS| Writing password to file in \"/Library/.aup\"" "Failed writing password to file \"/Library/.aup\""
+
+#========================================#
+#          GIVE ADMIN PERMISSIONS        # 
+#========================================#
+dseditgroup -o edit -a .support.trustly -t user admin
+logresult "|SUCCESS| Admin granted" "Admin Failed"
